@@ -1,0 +1,24 @@
+{
+  "name": "antikythera-mechanism",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Interactive 3D web simulation of the Antikythera mechanism",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "three": "0.178.0"
+  },
+  "devDependencies": {
+    "@types/three": "^0.178.1",
+    "playwright-core": "^1.61.1",
+    "typescript": "5.5.4",
+    "vite": "6.3.5",
+    "vitest": "3.2.4"
+  }
+}
