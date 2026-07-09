@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Antikythera Mechanism — Interactive 3D Simulation</title>
+    <meta
+      name="description"
+      content="A mechanically faithful, interactive 3D reconstruction of the Antikythera mechanism: one hand crank drives every dial through the ancient gear ratios."
+    />
+  </head>
+  <body>
+    <div id="scene" aria-label="3D view of the Antikythera mechanism"></div>
+
+    <header id="topbar">
+      <div class="title">
+        <h1>Antikythera Mechanism</h1>
+        <span class="subtitle">an interactive reconstruction</span>
+      </div>
+      <nav aria-label="Learning tools">
+        <button id="btn-tour">✦ Guided tour</button>
+        <button id="btn-glossary">Glossary &amp; deep dives</button>
+        <button id="btn-about">About &amp; accuracy</button>
+        <button id="btn-info" aria-pressed="true">Readings</button>
+      </nav>
+    </header>
+
+    <p id="caveat">
+      <button id="caveat-more" title="About accuracy">ⓘ</button>
+      <span id="caveat-text"></span>
+    </p>
+
+    <aside id="info-panel" aria-label="Current dial readings">
+      <h2>Dial readings</h2>
+      <div id="readings"></div>
+    </aside>
+
+    <div id="controls" role="toolbar" aria-label="Simulation controls">
+      <div class="ctl-group" aria-label="Time controls">
+        <button id="play" aria-label="Play time-lapse">▶</button>
+        <label class="slider-label"
+          >speed
+          <input id="speed" type="range" min="-1" max="3.4" step="0.05" value="1.5" />
+          <span id="speed-label"></span>
+        </label>
+      </div>
+
+      <div class="ctl-group" aria-label="Jump to date">
+        <input id="date-day" type="number" min="1" max="31" value="8" aria-label="Day" />
+        <select id="date-month" aria-label="Month"></select>
+        <input id="date-year" type="number" min="1" max="9999" value="2026" aria-label="Year" />
+        <select id="date-era" aria-label="Era">
+          <option>AD</option>
+          <option>BC</option>
+        </select>
+        <button id="go">Go</button>
+        <button id="today">Today</button>
+      </div>
+
+      <div class="ctl-group" aria-label="Camera views">
+        <button id="view-front">Front</button>
+        <button id="view-back">Back</button>
+        <button id="view-side">Side</button>
+      </div>
+
+      <div class="ctl-group" aria-label="See inside">
+        <label class="slider-label"
+          >explode <input id="explode" type="range" min="0" max="1" step="0.01" value="0" />
+        </label>
+        <label class="slider-label"
+          >slice <input id="slice" type="range" min="0" max="1" step="0.01" value="0" />
+        </label>
+        <label class="check-label"><input id="xray" type="checkbox" /> x-ray</label>
+        <label class="check-label"
+          >isolate
+          <select id="isolate" aria-label="Isolate a gear train">
+            <option value="">— everything —</option>
+          </select>
+        </label>
+      </div>
+    </div>
+
+    <div id="tooltip" hidden></div>
+
+    <section id="tour" hidden aria-label="Guided tour">
+      <div id="tour-card">
+        <h2 id="tour-title"></h2>
+        <div id="tour-body"></div>
+        <div id="tour-nav">
+          <button id="tour-prev">← Back</button>
+          <span id="tour-step"></span>
+          <button id="tour-next">Next →</button>
+          <button id="tour-close" aria-label="End tour">✕</button>
+        </div>
+      </div>
+    </section>
+
+    <dialog id="modal">
+      <button id="modal-close" aria-label="Close">✕</button>
+      <div id="modal-content"></div>
+    </dialog>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
