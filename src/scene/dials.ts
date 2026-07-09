@@ -43,19 +43,83 @@ const ZODIAC_GREEK = [
   'ΙΧΘΥΕΣ', // Pisces
 ];
 
-const PARCHMENT = '#d9c9a3';
-const PARCHMENT_DARK = '#c9b68c';
+// Weathered bronze sheet, not paper: the artefact's plates are corroded
+// metal with engraved lettering.
+const PARCHMENT = '#c0a878';
+const PARCHMENT_DARK = '#ab9265';
 const INK = '#2b2015';
 const ACCENT = '#7a1f12';
+
+/** Deterministic PRNG so staining is stable between loads. */
+function mulberry32(seed: number) {
+  let a = seed | 0;
+  return () => {
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/**
+ * Age a dial face: corrosion stains, verdigris shadows and speckle pitting,
+ * painted only over already-drawn pixels ('source-atop'), plus an edge
+ * vignette. Subtle enough to keep every inscription legible.
+ */
+function ageFace(ctx: CanvasRenderingContext2D, size: number, strength = 1) {
+  const rnd = mulberry32(size * 31 + Math.round(strength * 97));
+  ctx.save();
+  ctx.globalCompositeOperation = 'source-atop';
+
+  const blotch = (color: string, count: number, maxR: number, alpha: number) => {
+    for (let i = 0; i < count; i++) {
+      const x = rnd() * size;
+      const y = rnd() * size;
+      const r = (0.02 + rnd() * maxR) * size;
+      const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+      g.addColorStop(0, color);
+      g.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.globalAlpha = alpha * strength * (0.5 + rnd() * 0.5);
+      ctx.fillStyle = g;
+      ctx.fillRect(x - r, y - r, r * 2, r * 2);
+    }
+  };
+  blotch('#7a5c30', 42, 0.13, 0.22); // bronze staining
+  blotch('#556b4d', 30, 0.11, 0.19); // verdigris fields
+  blotch('#2e2313', 28, 0.08, 0.17); // grime
+  blotch('#d8c294', 22, 0.09, 0.16); // worn bright metal
+
+  ctx.globalAlpha = 0.35 * strength;
+  for (let i = 0; i < 700; i++) {
+    ctx.fillStyle = rnd() > 0.5 ? 'rgba(40,28,12,0.5)' : 'rgba(90,110,88,0.4)';
+    ctx.fillRect(rnd() * size, rnd() * size, 1 + rnd() * 2, 1 + rnd() * 2);
+  }
+
+  // edge vignette
+  const v = ctx.createRadialGradient(
+    size / 2, size / 2, size * 0.32,
+    size / 2, size / 2, size * 0.72,
+  );
+  v.addColorStop(0, 'rgba(0,0,0,0)');
+  v.addColorStop(1, `rgba(35,24,10,${0.28 * strength})`);
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = v;
+  ctx.fillRect(0, 0, size, size);
+
+  ctx.restore();
+  ctx.globalAlpha = 1;
+}
 
 function canvasTexture(
   size: number,
   draw: (ctx: CanvasRenderingContext2D, size: number) => void,
+  age = 1,
 ): THREE.CanvasTexture {
   const canvas = document.createElement('canvas');
   canvas.width = canvas.height = size;
   const ctx = canvas.getContext('2d')!;
   draw(ctx, size);
+  if (age > 0) ageFace(ctx, size, age);
   const tex = new THREE.CanvasTexture(canvas);
   tex.anisotropy = 8;
   tex.colorSpace = THREE.SRGBColorSpace;
